@@ -1,11 +1,27 @@
 import { cookies } from "next/headers";
 import { pendaftar } from "@/data/ekskul";
 
+function tingkatKelas(kelas: string): number {
+  const depan = kelas.trim().split(" ")[0]?.toUpperCase() ?? "";
+  if (depan === "XII") return 12;
+  if (depan === "XI") return 11;
+  if (depan === "X") return 10;
+  return 0;
+}
+
+export function urutAnggota<T extends { nama: string; kelas: string }>(list: T[]): T[] {
+  return [...list].sort((a, b) => {
+    const selisihKelas = tingkatKelas(b.kelas) - tingkatKelas(a.kelas);
+    if (selisihKelas !== 0) return selisihKelas;
+    return a.nama.localeCompare(b.nama, "id", { sensitivity: "base" });
+  });
+}
+
 export default async function DaftarAnggota({ ekskulId }: { ekskulId: number }) {
   const cookieStore = await cookies();
   const namaSaya = cookieStore.get("nama")?.value ?? "";
 
-  const anggota = pendaftar.filter((p) => p.ekskulId === ekskulId);
+  const anggota = urutAnggota(pendaftar.filter((p) => p.ekskulId === ekskulId));
 
   if (anggota.length === 0) {
     return (
