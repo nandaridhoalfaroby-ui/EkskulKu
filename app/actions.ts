@@ -56,6 +56,20 @@ export async function daftarEkskul(_prev: StateDaftar, form: FormData): Promise<
     return kembalikan({ galatUmum: `Jadwal bentrok dengan ${lain?.nama} (${lain?.hari}, sesi ${lain?.sesi}).` });
   }
 
+  // BONUS 2: MAKSIMAL 2 EKSKUL PER MURID
+  const milikMurid = pendaftar.filter(
+    (p) => p.nama.toLowerCase() === nama.toLowerCase() && p.kelas.toLowerCase() === kelas.toLowerCase()
+  );
+  if (milikMurid.length >= 2) {
+    const namaEkskul = milikMurid
+      .map((p) => ekskul.find((x) => x.id === p.ekskulId)?.nama)
+      .filter(Boolean)
+      .join(" dan ");
+    return kembalikan({
+      galatUmum: `${nama} (${kelas}) sudah mengikuti maksimal 2 ekskul (${namaEkskul}). Batalkan salah satu dulu di Ekskul Saya untuk daftar yang baru.`,
+    });
+  }
+
   const nomor = tambahPendaftar({ ekskulId, nama, kelas });
   const cookieStore = await cookies();
   cookieStore.set("nama", nama, { maxAge: 60 * 60 * 24 * 30, path: "/" });
@@ -71,15 +85,12 @@ export async function daftarEkskul(_prev: StateDaftar, form: FormData): Promise<
   redirect(`/ekskul/${ekskulId}?sukses=1`);
 }
 
-// LANGKAH 5 - POIN 13: BATALKAN
 export async function batalkanEkskul(form: FormData) {
   const pendaftarId = Number(form.get("pendaftarId"));
   const cookieStore = await cookies();
   const namaCookie = cookieStore.get("nama")?.value ?? "";
   const kelasCookie = cookieStore.get("kelas")?.value ?? "";
 
-  // CEK ULANG KEPEMILIKAN - jangan percaya id doang
-  // Kalau orang iseng ganti pendaftarId lewat DevTools, ditolak
   const target = pendaftar.find((p) => p.id === pendaftarId);
   if (!target) redirect("/saya");
 
@@ -87,7 +98,6 @@ export async function batalkanEkskul(form: FormData) {
     target.nama.toLowerCase() !== namaCookie.toLowerCase() ||
     target.kelas.toLowerCase() !== kelasCookie.toLowerCase()
   ) {
-    // Bukan punya dia - tolak, jangan hapus
     redirect("/saya");
   }
 
