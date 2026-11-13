@@ -9,19 +9,18 @@ function tingkatKelas(kelas: string): number {
   return 0;
 }
 
-export function urutAnggota<T extends { nama: string; kelas: string }>(list: T[]): T[] {
-  return [...list].sort((a, b) => {
-    const selisihKelas = tingkatKelas(b.kelas) - tingkatKelas(a.kelas);
-    if (selisihKelas !== 0) return selisihKelas;
-    return a.nama.localeCompare(b.nama, "id", { sensitivity: "base" });
-  });
-}
-
 export default async function DaftarAnggota({ ekskulId }: { ekskulId: number }) {
   const cookieStore = await cookies();
   const namaSaya = cookieStore.get("nama")?.value ?? "";
 
-  const anggota = urutAnggota(pendaftar.filter((p) => p.ekskulId === ekskulId));
+  // SORT: XII dulu, baru XI, baru X, lalu nama A-Z
+  const anggota = pendaftar
+    .filter((p) => p.ekskulId === ekskulId)
+    .sort((a, b) => {
+      const selisihKelas = tingkatKelas(b.kelas) - tingkatKelas(a.kelas);
+      if (selisihKelas !== 0) return selisihKelas;
+      return a.nama.localeCompare(b.nama, "id", { sensitivity: "base" });
+    });
 
   if (anggota.length === 0) {
     return (
@@ -33,14 +32,16 @@ export default async function DaftarAnggota({ ekskulId }: { ekskulId: number }) 
 
   return (
     <ul className="space-y-2">
-      {anggota.map((p) => {
+      {anggota.map((p, i) => {
         const milikSaya = namaSaya !== "" && p.nama.toLowerCase() === namaSaya.toLowerCase();
+        // NOMOR URUT 1, 2, 3... bukan p.id lagi
+        const nomorUrut = i + 1;
         return (
           <li
             key={p.id}
             className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${milikSaya ? "bg-[#A3E635]/40 border-lime-300" : "bg-[#EAFBF2] border-teal-100"}`}
           >
-            <span className="text-sm font-black text-[#0F2E22]">#{p.id} {p.nama}</span>
+            <span className="text-sm font-black text-[#0F2E22]">#{nomorUrut} {p.nama}</span>
             <span className="flex items-center gap-2">
               <span className="text-xs font-bold text-teal-800/70">{p.kelas}</span>
               {milikSaya && (
