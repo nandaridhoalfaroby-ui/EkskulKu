@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { ekskul, pendaftar, DAFTAR_KATEGORI, DAFTAR_HARI, JAM_SESI } from "@/data/ekskul";
+import { ekskul, pendaftar, DAFTAR_KATEGORI, DAFTAR_HARI } from "@/data/ekskul";
+import KartuEkskul from "@/components/KartuEkskul";
+import KontrolEkskul from "@/components/KontrolEkskul";
 
 export const metadata = { title: "Semua Ekskul", description: "Jelajahi semua ekstrakurikuler di EkskulKu." };
 
@@ -45,68 +47,90 @@ export default async function KatalogEkskul({ searchParams }: Props) {
     return s ? `/ekskul?${s}` : "/ekskul";
   };
 
+  // Chip anti-white: on = hitam-lime, off = mint
   const chip = (on: boolean) =>
     on
-      ? "bg-[#0F2E22] text-white border-[#0F2E22]"
-      : "bg-white text-[#0F2E22] border-teal-300 hover:bg-[#CFF5DE]";
+      ? "bg-[#0F2E22] text-[#A3E635] border-[#0F2E22] shadow-md"
+      : "bg-[#EAFBF2] text-[#0F2E22] border-teal-100 hover:bg-[#CFF5DE] hover:border-teal-200";
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <h1 className="text-3xl font-black tracking-tight text-[#0F2E22]">Semua Ekskul</h1>
-      <p className="mt-2 text-sm font-black text-[#0F2E22]">{hasil.length} ekskul ditemukan {hanyaSisa && "• hanya yang masih ada tempat"}</p>
-
-      <div className="mt-6 rounded- bg-[#A7F3D0] border-2 border-teal-300 p-5 shadow-md">
-        <p className="text-xs font-black text-[#0F2E22]">Kategori</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Link href={linkFilter({ kategori: "" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(!kategori)}`}>Semua</Link>
-          {DAFTAR_KATEGORI.map((k) => (
-            <Link key={k} href={linkFilter({ kategori: k })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(kategori === k)}`}>{k}</Link>
-          ))}
-        </div>
-        <p className="mt-4 text-xs font-black text-[#0F2E22]">Hari</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Link href={linkFilter({ hari: "" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(!hari)}`}>Semua Hari</Link>
-          {DAFTAR_HARI.map((h) => (
-            <Link key={h} href={linkFilter({ hari: h })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(hari === h)}`}>{h}</Link>
-          ))}
-        </div>
-        <p className="mt-4 text-xs font-black text-[#0F2E22]">Sesi</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Link href={linkFilter({ sesi: "" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(!sesi)}`}>Semua Sesi</Link>
-          <Link href={linkFilter({ sesi: "1" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(sesi === 1)}`}>Sesi 1 (15.00-16.30)</Link>
-          <Link href={linkFilter({ sesi: "2" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(sesi === 2)}`}>Sesi 2 (16.30-18.00)</Link>
-        </div>
-        <p className="mt-4 text-xs font-black text-[#0F2E22]">Ketersediaan</p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Link href={linkFilter({ sisa: "" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(!hanyaSisa)}`}>Semua</Link>
-          <Link href={linkFilter({ sisa: "1" })} className={`rounded-full border-2 px-3 py-1.5 text-xs font-black ${chip(hanyaSisa)}`}>✅ Masih Ada Tempat</Link>
+    <div className="mx-auto max-w-6xl space-y-6">
+      {/* HEADER */}
+      <div className="relative overflow-hidden rounded- bg-gradient-to-br from-[#0F2E22] via-[#134E4A] to-[#0F766E] p-6 md:p-8 shadow-xl">
+        <div className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-[#A3E635]/20" />
+        <div className="absolute -left-6 -bottom-8 h-28 w-28 rounded-full bg-teal-400/20" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <span className="inline-flex rounded-full bg-[#A3E635] px-3 py-1.5 text- font-black text-[#0F2E22]">🏀 KATALOG EKSKUL</span>
+            <h1 className="mt-3 text-3xl md:text-4xl font-black tracking-tight text-white leading-tight">Semua Ekskul</h1>
+            <p className="mt-1 text-sm font-medium text-white/70">Pilih yang paling kamu suka, langsung daftar.</p>
+          </div>
+          <span className="rounded-full bg-white/10 border border-white/20 backdrop-blur px-4 py-2 text-sm font-black text-white">
+            🎟️ {hasil.length} ekskul ditemukan {hanyaSisa && "• masih ada tempat"}
+          </span>
         </div>
       </div>
 
+      {/* SEARCH + SORT - komponen modern yang udah lo punya */}
+      <KontrolEkskul kategori={""} hari={""} />
+
+      {/* FILTER WARNA-WARNI */}
+      <div className="rounded- bg-[#EAFBF2] border-2 border-teal-100 p-5 md:p-6 shadow-sm space-y-5">
+        <div>
+          <p className="flex items-center gap-2 text-xs font-black tracking-wide text-[#0F2E22]"><span className="grid h-6 w-6 place-items-center rounded-full bg-[#A3E635] text-">🎯</span> KATEGORI</p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <Link href={linkFilter({ kategori: "" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(!kategori)}`}>✨ Semua</Link>
+            {DAFTAR_KATEGORI.map((k) => (
+              <Link key={k} href={linkFilter({ kategori: k })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(kategori === k)}`}>{k}</Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-teal-100 pt-5">
+          <p className="flex items-center gap-2 text-xs font-black tracking-wide text-[#0F2E22]"><span className="grid h-6 w-6 place-items-center rounded-full bg-[#FDE68A] text-">📅</span> HARI</p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <Link href={linkFilter({ hari: "" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(!hari)}`}>Semua Hari</Link>
+            {DAFTAR_HARI.map((h) => (
+              <Link key={h} href={linkFilter({ hari: h })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(hari === h)}`}>{h}</Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-teal-100 pt-5">
+          <p className="flex items-center gap-2 text-xs font-black tracking-wide text-[#0F2E22]"><span className="grid h-6 w-6 place-items-center rounded-full bg-[#C4B5FD] text-">🕒</span> SESI</p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <Link href={linkFilter({ sesi: "" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(!sesi)}`}>Semua Sesi</Link>
+            <Link href={linkFilter({ sesi: "1" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(sesi === 1)}`}>Sesi 1 • 15.00 - 16.30</Link>
+            <Link href={linkFilter({ sesi: "2" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(sesi === 2)}`}>Sesi 2 • 16.30 - 18.00</Link>
+          </div>
+        </div>
+
+        <div className="border-t border-teal-100 pt-5">
+          <p className="flex items-center gap-2 text-xs font-black tracking-wide text-[#0F2E22]"><span className="grid h-6 w-6 place-items-center rounded-full bg-[#6EE7B7] text-">✅</span> KETERSEDIAAN</p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <Link href={linkFilter({ sisa: "" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(!hanyaSisa)}`}>Semua</Link>
+            <Link href={linkFilter({ sisa: "1" })} className={`rounded-full border-2 px-3.5 py-2 text-xs font-black transition hover:-translate-y-0.5 ${chip(hanyaSisa)}`}>✅ Masih Ada Tempat</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* HASIL */}
       {hasil.length === 0 ? (
-        <div className="mt-6 rounded- bg-[#A7F3D0] border-2 border-teal-300 p-8 text-center">
-          <p className="text-3xl">🔍</p>
-          <p className="mt-2 font-black text-[#0F2E22]">Tidak ada ekskul yang cocok.</p>
-          <Link href="/ekskul" className="mt-3 inline-block rounded-full bg-[#0F2E22] px-5 py-2.5 text-xs font-black text-white">Reset Filter</Link>
+        <div className="overflow-hidden rounded- bg-[#EAFBF2] border-2 border-teal-100 shadow-sm text-center">
+          <div className="bg-gradient-to-r from-[#14B8A6] to-[#A3E635] px-6 py-6">
+            <p className="text-4xl">🔍</p>
+          </div>
+          <div className="p-6 md:p-8">
+            <p className="font-black text-[#0F2E22] text-lg">Tidak ada ekskul yang cocok.</p>
+            <p className="mt-1 text-sm font-medium text-teal-800/70">Coba ubah filter atau cari kata lain.</p>
+            <Link href="/ekskul" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0F2E22] px-5 py-2.5 text-xs font-black text-[#A3E635] shadow-md hover:-translate-y-0.5 transition">↺ Reset Filter</Link>
+          </div>
         </div>
       ) : (
-        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {hasil.map((e) => {
-            const terdaftar = pendaftar.filter((p) => p.ekskulId === e.id).length;
-            const sisa = Math.max(0, e.kuota - terdaftar);
-            const penuh = sisa === 0;
-            return (
-              <Link key={e.id} href={`/ekskul/${e.id}`} className="block rounded- bg-[#A7F3D0] border-2 border-teal-300 p-5 shadow-md hover:border-teal-500 hover:-translate-y-0.5 transition">
-                <div className="flex gap-2">
-                  <span className="rounded-full bg-[#0F2E22] px-3 py-1 text- font-black text-[#CFF5DE]">{e.kategori}</span>
-                  {penuh && <span className="rounded-full bg-red-500 px-3 py-1 text- font-black text-white">PENUH</span>}
-                </div>
-                <h2 className="mt-3 text-lg font-black text-[#0F2E22]">{e.nama}</h2>
-                <p className="mt-1 text-xs font-bold text-[#0F2E22]/80">📅 {e.hari} • 🕒 Sesi {e.sesi} ({JAM_SESI[e.sesi]})</p>
-                <p className="mt-1 text-xs font-bold text-[#0F2E22]/80">👨‍🏫 {e.pembina} • Sisa {sisa} tempat</p>
-              </Link>
-            );
-          })}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {hasil.map((e) => (
+            <KartuEkskul key={e.id} e={e} />
+          ))}
         </div>
       )}
     </div>

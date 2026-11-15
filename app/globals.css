@@ -3,15 +3,118 @@
 :root {
   --background: #CFF5DE;
   --foreground: #0F2E22;
+  --lime: #A3E635;
+  --lime-muda: #BEF264;
+  --teal: #14B8A6;
+  --mint: #EAFBF2;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-lime: var(--lime);
+  --color-lime-muda: var(--lime-muda);
+  --color-teal: var(--teal);
+  --color-mint: var(--mint);
+  --font-sans: var(--font-poppins);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Dark mode sengaja dimatiin biar tetep mint, gak jadi hitam / putih */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #CFF5DE;
+    --foreground: #0F2E22;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+  /* Pattern dot halus biar background gak polos */
+  background-image: radial-gradient(rgba(20, 184, 166, 0.12) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Selection lime */
 ::selection {
   background: #A3E635;
   color: #0F2E22;
+}
+
+/* Scrollbar modern - teal lime, bukan abu-abu */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #D9F7E8;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #14B8A6, #A3E635);
+  border-radius: 999px;
+  border: 2px solid #D9F7E8;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #14B8A6;
+}
+
+/* Hilangin scrollbar buat nav mobile */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Input / select / textarea - focus ring teal modern */
+input, select, textarea {
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #14B8A6 !important;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25) !important;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  opacity: 1;
+}
+
+/* Animasi halus buat kartu & badge */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop {
+  animation: pop 0.25s ease-out both;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Biar gambar gak bisa di-drag */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
 }
